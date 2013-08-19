@@ -1,0 +1,51 @@
+# general-example:
+# Example values for the "general" config file.
+#
+# Configuration parameters, in YAML syntax.
+#
+# Copy this file to one called "general.yml" in the same directory.  Or
+# have multiple config files and use a symlink to change between them.
+#
+# Copyright (c) 2011 UK Citizens Online Democracy. All rights reserved.
+
+SAYIT_DB_HOST: 'localhost'
+SAYIT_DB_PORT: '5432'
+SAYIT_DB_USER: ''
+SAYIT_DB_NAME: ''
+SAYIT_DB_PASS: ''
+
+STAGING: '1'
+
+TIME_ZONE: 'Europe/London'
+DJANGO_SECRET_KEY: ''
+
+# For local development, a good choice here is to set BASE_HOST
+# to '127.0.0.1.xip.io' and BASE_PORT to 8000
+BASE_HOST: ''
+BASE_PORT: ''
+
+# Popit API URL
+POPIT_API_URL: 'http://popit.example.com/api/v0.1/'
+
+# create an account and then put the 'UA-123456-1' bit here. If present it will
+# be used in the templates.
+GOOGLE_ANALYTICS_ACCOUNT: ''
+
+# AT&T api details
+ATT_OAUTH_URL: ''
+ATT_CLIENT_ID: ''
+ATT_SECRET: ''
+ATT_API_URL: ''
+ATT_TIMEOUT: ''
+
+# Celery
+# 'django://' is the default, using Django's ORM, but is probably not suitable
+# for production, see: http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#choosing-a-broker
+# for more info
+CELERY_BROKER_URL: 'django://'
+
+# Content formatting
+# How many characters of speech text to show
+SPEECH_SUMMARY_LENGTH: 30
+# Default auto-transcription text
+DEFAULT_TRANSCRIPTION: "This speech could not be transcribed automatically"

@@ -15,7 +15,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'entity',
+        'NAME': 'resolver',
         # The following settings are not used with sqlite3:
         'USER': '',
         'PASSWORD': '',
@@ -105,10 +105,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'popit_entity.urls'
+ROOT_URLCONF = 'popit_resolver.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'popit_entity.wsgi.application'
+WSGI_APPLICATION = 'popit_resolver.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -128,7 +128,7 @@ INSTALLED_APPS = (
     'django_nose',
     'south',
     'popit',
-    'popit_entity',
+    'popit_resolver',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

@@ -20,9 +20,12 @@ class ResolvePopitName (object):
 
     def __init__(self, 
             popit_url = 'http://sa-test.matthew.popit.dev.mysociety.org/api/v0.1/',
-            date = None):
+            date = None,
+            date_string = None):
 
-        if date == None:
+        if date:
+            date_string = date.strftime('%Y-%m-%d')
+        if not date_string:
             raise Error("You must provide a date")
 
         # TODO get this url from the AN document, or from config/parameter
@@ -34,7 +37,7 @@ class ResolvePopitName (object):
         self.speakers_matched = 0
         self.already_spoken = []
 
-        self.init_popit_data( date.strftime('%Y-%m-%d') )
+        self.init_popit_data( date_string )
 
     def init_popit_data(self, date_string):
         # TODO this should be in popit-django.  Will try to structure things so that this

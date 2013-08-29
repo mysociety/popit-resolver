@@ -1,13 +1,10 @@
-from django.conf.urls import patterns, url, include
-from django.views.decorators.csrf import csrf_exempt
+pass
 
-from speeches.views import *
-from tastypie.api import Api
+# from django.conf.urls import patterns, url, include
 
-v01_api = Api(api_name='v0.1')
-# v01_api.register(SpeakerResource())
+# from popit_resolver.views import *
 
-urlpatterns = patterns('',
-    url(r'^api/', include(v01_api.urls))
-)
+#urlpatterns = patterns('',
+#   url(r'^api/', include(v01_api.urls))
+# )
 

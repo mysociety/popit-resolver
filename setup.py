@@ -14,7 +14,7 @@ def install_requires():
     return reqs
 
 setup(
-    name="django-popit",
+    name="popit-resolver",
     version='0.1',
     description='Resolve names to popit-django records',
     long_description=read_file('README.md'),

@@ -8,11 +8,11 @@
 #
 # Copyright (c) 2011 UK Citizens Online Democracy. All rights reserved.
 
-SAYIT_DB_HOST: 'localhost'
-SAYIT_DB_PORT: '5432'
-SAYIT_DB_USER: ''
-SAYIT_DB_NAME: ''
-SAYIT_DB_PASS: ''
+POPIT_RESOLVER_DB_HOST: 'localhost'
+POPIT_RESOLVER_DB_PORT: '5432'
+POPIT_RESOLVER_DB_USER: ''
+POPIT_RESOLVER_DB_NAME: ''
+POPIT_RESOLVER_DB_PASS: ''
 
 STAGING: '1'
 

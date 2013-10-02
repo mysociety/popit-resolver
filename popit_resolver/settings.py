@@ -1,4 +1,17 @@
-# Django settings for za_hansard project.
+# Django settings for popit resolver project.
+
+import os
+import yaml
+
+# Path to here is something like
+# /data/vhost/<vhost>/<repo>/<project_name>/settings/base.py
+SETTINGS_DIR = os.path.abspath(os.path.dirname(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(SETTINGS_DIR, '..'))
+PARENT_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, '..'))
+
+config_file = os.path.join(PROJECT_ROOT, 'conf', 'general.yml')
+with open(config_file) as f:
+        config = yaml.load(f)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -15,14 +28,14 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'resolver',
-        # The following settings are not used with sqlite3:
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
+        'NAME':     config.get('POPIT_RESOLVER_DB_NAME', ''),
+        'USER':     config.get('POPIT_RESOLVER_DB_USER', ''),
+        'PASSWORD': config.get('POPIT_RESOLVER_DB_PASS', ''),
+        'HOST':     config.get('POPIT_RESOLVER_DB_HOST', ''),
+        'PORT':     config.get('POPIT_RESOLVER_DB_PORT', ''),
     }
 }
+
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts

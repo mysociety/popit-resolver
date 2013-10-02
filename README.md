@@ -1,12 +1,12 @@
 popit-resolver
 ==============
 
-A project to resolve people's names to a Popit record (see 
+A project to resolve people's names to a Popit record (see
 <http://mysociety.github.com/popit-resolver/>)
 
 Documentation
 -------------
-Documentation (a work in progress) can be found at: http://mysociety.github.com/popit-resolver/
+Documentation (a work in progress) can be found at: https://github.com/mysociety/popit-resolver
 
 Installation
 ------------
@@ -28,12 +28,12 @@ Something like the following, customised to your particular environment or set u
     sudo -u postgres psql
     postgres=# CREATE USER resolver WITH password 'resolver';
     CREATE ROLE
-    postgres=# CREATE DATABASE sayit WITH OWNER resolver;
+    postgres=# CREATE DATABASE resolver WITH OWNER resolver;
     CREATE DATABASE
 
     # Set up a python virtual environment, activate it
-    # this assumes that you will set up the virtualenv in .. 
-    # (e.g. outside the repo.  
+    # this assumes that you will set up the virtualenv in ..
+    # (e.g. outside the repo.
     #  You can use ~/.virtualenvs/ etc. if you prefer)
     virtualenv --no-site-packages ../virtualenv-resolver
     source ../virtualenv-resolver/bin/activate
@@ -43,8 +43,8 @@ Something like the following, customised to your particular environment or set u
 
     cp conf/general.yml-example conf/general.yml
     # Alter conf/general.yml as per your set up
-    #    use the 'sayit' account as above for SAYIT_DB_{USER,NAME,PASS}
-    # 
+    #    use the 'resolver' account as above for POPIT_RESOLVER_DB_{USER,NAME,PASS}
+    #
     # For *development* use only:
     #    use recommendations for BASE_{HOST,PORT}
     #    DJANGO_SECRET_KEY isn't needed
@@ -53,7 +53,7 @@ Something like the following, customised to your particular environment or set u
     ./manage.py syncdb
 
     # This will ask you if you wish to create a Django superuser, which you'll
-    # use to access the sayit admin interface. You can always do it later with
+    # use to access the POPIT_RESOLVER admin interface. You can always do it later with
     # ./manage.py createsuperuser, but there's no harm in doing it now either,
     # just remember the details you choose!
 

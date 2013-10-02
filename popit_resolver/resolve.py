@@ -18,7 +18,7 @@ name_rx = re.compile(r'^(\w+) (.*?)( \((\w+)\))?$')
 
 class ResolvePopitName (object):
 
-    def __init__(self, 
+    def __init__(self,
             popit_url = 'http://sa-test.matthew.popit.dev.mysociety.org/api/v0.1/',
             date = None,
             date_string = None):
@@ -140,7 +140,7 @@ class ResolvePopitName (object):
             ret = Person.update_from_api_results(instance=self.ai, doc=person)
             return ret
             # return Person.update_from_api_results(instance=self.instance, doc="HELLO")
-        
+
         return None
 
     def get_best_popit_match(self, name, possible, threshold):
@@ -172,7 +172,7 @@ class ResolvePopitName (object):
             if name.lower() == name_with_initials.lower():
                 return 0.9
 
-            
+
             canon_rx = re.compile(r'((the|of|for|and)\b ?)')
             valid_chars = string.letters + ' '
             def _valid_char(c):

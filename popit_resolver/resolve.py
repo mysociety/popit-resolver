@@ -2,7 +2,6 @@ import calendar
 from datetime import datetime
 import logging
 import os, sys
-import pickle
 import re, string
 
 from lxml import etree
@@ -10,6 +9,7 @@ from lxml import objectify
 
 from django.db import models
 from django.utils import timezone
+from django.core.cache import cache
 
 from popit.models import Person, ApiInstance
 
@@ -82,15 +82,12 @@ class ResolvePopitName (object):
 
     def get_collection(self, collection, fn=None):
 
-        pickle_path = '.' # TODO, where is sanest place to put this?
-        pickle_file = os.path.join(pickle_path, '%s.pickle' % collection)
+        cache_key = 'ResolvePopitName.get_collection-' + collection
 
         if self.use_cache:
-            try:
-                collection = pickle.load( open(pickle_file, 'r') )
-                return collection
-            except:
-                pass
+            cached_value = cache.get(cache_key)
+            if cached_value:
+                return cached_value
 
         api_client = self.ai.api_client(collection)
         objects = api_client.get()['result']
@@ -99,7 +96,8 @@ class ResolvePopitName (object):
 
         objects = dict([ (doc['id'], doc) for doc in objects ])
 
-        pickle.dump(objects, open(pickle_file, 'w'), -1)
+        # Cache for one hour
+        cache.set(cache_key, objects, 3600)
 
         return objects
 

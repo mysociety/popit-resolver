@@ -19,7 +19,7 @@ name_rx = re.compile(r'^(\w+) (.*?)( \((\w+)\))?$')
 class ResolvePopitName (object):
 
     def __init__(self,
-            popit_url = 'http://sa-test.matthew.popit.dev.mysociety.org/api/v0.1/',
+            popit_url,
             date = None,
             date_string = None):
 

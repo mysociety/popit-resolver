@@ -26,7 +26,7 @@ class ResolvePopitName (object):
         if date:
             date_string = date.strftime('%Y-%m-%d')
         if not date_string:
-            raise Error("You must provide a date")
+            raise Exception("You must provide a date")
 
         # TODO get this url from the AN document, or from config/parameter
         self.ai, _ = ApiInstance.objects.get_or_create(url=popit_url)

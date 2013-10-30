@@ -146,9 +146,11 @@ class ResolvePopitName (object):
         honorific = ''
         party = ''
         match = name_rx.match(name)
+        name_without_honorific = ''
 
         if match:
             honorific, name, _, party = match.groups()
+            name_without_honorific = ' '.join( [honorific, name] )
 
         def _get_initials(record):
             initials = record.get('initials', None)
@@ -163,13 +165,16 @@ class ResolvePopitName (object):
         def _match(record):
             if name == record.get('name', ''):
                 return 1.0
+            if name_without_honorific == record.get('name', ''):
+                return 0.95
 
             name_with_initials = '%s %s' % (
                 _get_initials(record),
                 record.get('family_name', ''))
             if name.lower() == name_with_initials.lower():
                 return 0.9
-
+            if name_without_honorific.lower() == name_with_initials.lower():
+                return 0.85
 
             canon_rx = re.compile(r'((the|of|for|and)\b ?)')
             valid_chars = string.letters + ' '

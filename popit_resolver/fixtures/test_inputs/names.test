@@ -1506,5 +1506,21 @@
     [
         "Mr S Z Ntapane", 
         "org.mysociety.za/person/521"
+    ],
+    [
+        "Mr P Van Dalen",
+        "org.mysociety.za/person/455"
+    ],
+    [
+        "Mr P Van Dalen (DA)",
+        "org.mysociety.za/person/455"
+    ],
+    [
+        "P Van Dalen",
+        "org.mysociety.za/person/455"
+    ],
+    [
+        "P Van Dalen (DA)",
+        "org.mysociety.za/person/455"
     ]
 ]

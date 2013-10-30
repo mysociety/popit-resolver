@@ -28,13 +28,13 @@ class ResolvePopitNameTest(TestCase):
 
     def test_resolve(self):
 
-        resolver = ResolvePopitName( 
-                popit_url = popit_url,
-                date = datetime.date(month=10, year=2012, day=1) )
-
         names_file = os.path.join(self._in_fixtures, 'names.test')
         names_fh = open( names_file, 'r' )
         names = json.load( names_fh )
+
+        resolver = ResolvePopitName( 
+                popit_url = popit_url,
+                date = datetime.date(month=10, year=2012, day=1) )
 
         actual = []
         differences = []

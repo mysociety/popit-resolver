@@ -73,10 +73,3 @@ class ResolvePopitNameTest(TestCase):
             self.assertTrue(True) # as doesn't seem to be a .pass() method?
 
         print >> sys.stderr, '%d / %d resolved' % (resolver.speakers_matched, resolver.speakers_count)
-
-
-
-
-
-
-  

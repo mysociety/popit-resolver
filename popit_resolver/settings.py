@@ -1,6 +1,6 @@
 # Django settings for popit resolver project.
 
-import os
+import os, sys
 import yaml
 
 # Path to here is something like
@@ -13,17 +13,12 @@ config_file = os.path.join(PROJECT_ROOT, 'conf', 'general.yml')
 with open(config_file) as f:
         config = yaml.load(f)
 
+POPIT_API_URL = config.get('POPIT_API_URL', '')
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-)
-
-HANSARD_CACHE = 'hansard_cache/'
 HTTPLIB2_CACHE_DIR = 'httplib2_cache/'
-
-MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
@@ -36,6 +31,19 @@ DATABASES = {
     }
 }
 
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': 'http://127.0.0.1:9200/',
+        'INDEX_NAME': DATABASES['default']['NAME'],
+    },
+}
+if 'test' in sys.argv:
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+        },
+    }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -140,6 +148,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_nose',
     'south',
+    'haystack',
     'popit',
     'popit_resolver',
     # Uncomment the next line to enable the admin:

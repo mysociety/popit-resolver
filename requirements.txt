@@ -23,12 +23,6 @@ django-debug-toolbar
 selenium
 mock
 
-### Xapian is a full text search engine, and haystack a django interface to it.
-### If you want to use this uncomment below, and probably add the
-### '--enable-site-packages' argument to the pip install command in
-### 'post_deploy_actions.bash'
-# xapian-haystack
-### NB: trying elasticsearch instead, as per Matthew
 pyelasticsearch
 django-haystack
 

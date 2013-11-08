@@ -12,36 +12,98 @@ from django.utils import timezone
 from django.core.cache import cache
 
 from popit.models import Person, ApiInstance
+from popit_resolver.models import EntityName
+
+from haystack.query import SearchQuerySet
 
 logger = logging.getLogger(__name__)
-name_rx = re.compile(r'^(\w+) (.*?)( \((\w+)\))?$')
 
+name_rx = re.compile(r'^(\w+) (.*?)( \((\w+)\))?$')
 class ResolvePopitName (object):
 
     def __init__(self,
-            popit_url,
             date = None,
             date_string = None):
 
-        if date:
-            date_string = date.strftime('%Y-%m-%d')
-        if not date_string:
+        if date_string:
+            date = datetime.strptime('%Y-%m-%d', date_string)
+        if not date:
             raise Exception("You must provide a date")
 
-        # TODO get this url from the AN document, or from config/parameter
-        self.ai, _ = ApiInstance.objects.get_or_create(url=popit_url)
-        self.use_cache = True
-
         self.person_cache = {}
-        self.speakers_count   = 0
-        self.speakers_matched = 0
-        self.already_spoken = []
 
-        self.init_popit_data( date_string )
+    def get_person(self, name):
 
-    def init_popit_data(self, date_string):
-        # TODO this should be in popit-django.  Will try to structure things so that this
-        # code can be reused there if possible!
+        person = person_cache.get(name, None)
+        if person:
+            return person
+
+        persons = ( SearchQuerySet
+            .filter(content=name)
+            .exclude(
+                start_date__gt=self.date,
+                end_date__lt  =self.date)
+            .models(EntityName))
+
+        person = persons[0]
+        raise Exception(person)
+
+        person_cache[name] = person
+        
+
+class SetupEntities (object):
+
+    def __init__(self, popit_api_url):
+        if not popit_api_url:
+            raise Exception("No popit_api_url passed to init_popit_data")
+        self.ai, _ = ApiInstance.objects.get_or_create(url=popit_api_url)
+
+
+    def _get_initials(self, record):
+
+        initials = record.get('initials', None)
+        if initials:
+            return initials
+
+        given_names = record.get('given_names', None)
+        if given_names:
+            initials = [a[:1] for a in given_names.split()]
+            return ' '.join(initials)
+
+        return ''
+
+
+    def _get_family_name(self, record):
+
+        family_name = record.get('family_name', None)
+        if family_name:
+            return family_name
+
+        name = record.get('name', None)
+        if not name:
+            return None
+
+        given_names = record.get('given_names', None)
+        if given_names:
+            family_name = trim( name.replace(given_names, '', 1) )
+            return family_name
+
+        return name.rsplit(' ', 1)[0]
+
+    def _dates(self, membership):
+        def get_date(field):
+            value = membership.get(field, None)
+            if not value:
+                return None
+            value = value.replace('-00', '-01')
+            try:
+                return datetime.strptime(value, '%Y-%m-%d')
+            except:
+                return None
+        return [get_date(field) for field in ['start_date', 'end_date']]
+
+    def init_popit_data(self, delete_existing=False):
+        self.ai.fetch_all_from_api()
 
         def add_url(collection, api_client):
             collection_url = api_client._store['base_url']
@@ -49,22 +111,9 @@ class ResolvePopitName (object):
                 doc['popit_url'] = collection_url + '/' + doc['id']
             return collection
 
-        # Stringy comparison is sufficient here
-        def date_valid(collection, api_client):
-            def _date_valid(doc):
-                if doc['start_date']:
-                    if start_date > date_string:
-                        return False
-                if doc['end_date']:
-                    if end_date < date_string:
-                        return False
-                return True
-
-            return filter(_date_valid, collection)
-
-        persons = self.get_collection('persons', add_url)
+        persons       = self.get_collection('persons', add_url)
         organizations = self.get_collection('organizations')
-        memberships = self.get_collection('memberships')
+        memberships   = self.get_collection('memberships')
 
         for m in memberships.values():
             person = persons[m['person_id']]
@@ -74,20 +123,47 @@ class ResolvePopitName (object):
             organization = organizations[m['organization_id']]
             organization.setdefault('memberships', [])
             organization['memberships'].append(m)
+            m['organization'] = organization
 
-        self.persons = persons
-        self.organizations = organizations
-        self.memberships = memberships
-        self.already_spoken = []
+        for person in persons.values():
+            print >> sys.stderr, 'Processing %s' % person.get('name', 'eeek!')
+
+            name = person.get('name', None)
+            if not name:
+                continue
+
+            popit_person = Person.objects.get( popit_id=person['id'] )
+
+            existing = EntityName.objects.filter( person=popit_person )
+            if existing.count():
+                if delete_existing:
+                    existing.delete()
+
+            def make_name(**kwargs):
+                kwargs['person'] = popit_person
+                return EntityName.objects.get_or_create(**kwargs)
+
+            initials = self._get_initials(person)
+            family_name = self._get_family_name(person)
+
+            make_name(name=name)
+            make_name( name=' '.join( [initials, family_name] ) )
+
+            for membership in person['memberships']:
+                organization_name = membership['organization']['name']
+                (start_date, end_date) = self._dates(membership)
+                for field in ['role', 'label']:
+                    membership_label = membership.get(field, None)
+                    if not membership_label:
+                        continue
+
+                    make_name(
+                        name=' '.join( [membership_label, organization_name] ),
+                        start_date=start_date,
+                        end_date=end_date)
+
 
     def get_collection(self, collection, fn=None):
-
-        cache_key = 'ResolvePopitName.get_collection-' + collection
-
-        if self.use_cache:
-            cached_value = cache.get(cache_key)
-            if cached_value:
-                return cached_value
 
         api_client = self.ai.api_client(collection)
         objects = api_client.get()['result']
@@ -96,111 +172,5 @@ class ResolvePopitName (object):
 
         objects = dict([ (doc['id'], doc) for doc in objects ])
 
-        # Cache for one hour
-        cache.set(cache_key, objects, 3600)
-
         return objects
-
-    def get_person(self, name):
-        cached = self.person_cache.get(name, None)
-        if cached:
-            return cached
-
-        if not name:
-            raise Exception("No name passed")
-
-        popit_person = None
-
-        self.speakers_count += 1
-        popit_person = self.get_popit_person(name)
-
-        if popit_person:
-            self.speakers_matched += 1
-        else:
-            print >> sys.stderr, " - Failed to get user %s" % name
-
-        return popit_person
-
-    def get_popit_person(self, name):
-
-        def _get_popit_person(name):
-            person = self.get_best_popit_match(name, self.already_spoken, 0.75)
-            if person:
-                return person
-
-            person = self.get_best_popit_match(name, self.persons.values(), 0.80)
-            if person:
-                self.already_spoken.append(person)
-                return person
-
-        person = _get_popit_person(name)
-        if person:
-            ret = Person.update_from_api_results(instance=self.ai, doc=person)
-            return ret
-            # return Person.update_from_api_results(instance=self.instance, doc="HELLO")
-
-        return None
-
-    def get_best_popit_match(self, name, possible, threshold):
-        #TODO: here
-        honorific = ''
-        party = ''
-        match = name_rx.match(name)
-        name_without_honorific = ''
-
-        if match:
-            honorific, name, _, party = match.groups()
-            name_without_honorific = ' '.join( [honorific, name] )
-
-        def _get_initials(record):
-            initials = record.get('initials', None)
-            if initials:
-                return initials
-            given_names = record.get('given_names', None)
-            if given_names:
-                initials = [a[:1] for a in given_names.split()]
-                return ' '.join(initials)
-            return ''
-
-        def _match(record):
-            if name == record.get('name', ''):
-                return 1.0
-            if name_without_honorific == record.get('name', ''):
-                return 0.95
-
-            name_with_initials = '%s %s' % (
-                _get_initials(record),
-                record.get('family_name', ''))
-            if name.lower() == name_with_initials.lower():
-                return 0.9
-            if name_without_honorific.lower() == name_with_initials.lower():
-                return 0.85
-
-            canon_rx = re.compile(r'((the|of|for|and)\b ?)')
-            valid_chars = string.letters + ' '
-            def _valid_char(c):
-                return c in valid_chars
-            def _canonicalize(name):
-                return filter(_valid_char, canon_rx.sub('', name.lower()))
-
-            for m in record['memberships']:
-                role = m.get('role', '')
-                if role:
-                    cname = _canonicalize(name)
-                    crole = _canonicalize(role)
-                    if crole == cname:
-                        return 0.9
-
-                    if cname[-7:] == 'speaker':
-                        if crole == ('%s national assembly' % cname):
-                            return 0.8
-
-            return 0
-
-        for p in possible:
-            score = _match(p)
-            if score >= threshold:
-                return p
-
-        return None
 

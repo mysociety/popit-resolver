@@ -40,7 +40,7 @@ class ResolvePopitNameTest(TestCase):
         names = json.load( names_fh )
 
         resolver = ResolvePopitName( 
-                date = datetime.date(month=10, year=2012, day=1) )
+                date = datetime.date(month=11, year=2010, day=1) )
 
         actual = []
         differences = []
@@ -77,5 +77,3 @@ class ResolvePopitNameTest(TestCase):
 
         else:
             self.assertTrue(True) # as doesn't seem to be a .pass() method?
-
-        print >> sys.stderr, '%d / %d resolved' % (resolver.speakers_matched, resolver.speakers_count)

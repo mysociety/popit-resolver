@@ -18,7 +18,10 @@ from haystack.query import SearchQuerySet
 
 logger = logging.getLogger(__name__)
 
-name_rx = re.compile(r'^(\w+) (.*?)( \((\w+)\))?$')
+# TODO these should be added to another table from honorific_prefix in SetupEntities
+name_stopwords = re.compile(
+    '^(Adv|Chief|Dr|Miss|Mme|Mna|Mnr|Mnu|Moh|Moruti|Moulana|Mr|Mrs|Ms|Njing|Nkk|Nksz|Nom|P|Prince|Prof|Rev|Rre|Umntwana) ')
+
 class ResolvePopitName (object):
 
     def __init__(self,
@@ -39,27 +42,45 @@ class ResolvePopitName (object):
         if person:
             return person
 
-        results = ( SearchQuerySet()
-            .filter(
-                content=name,
-                ### below commented out because filters to ZERO results :-(
-                # start_date__lte=self.date,
-                # end_date__gte=self.date
+        def _get_person(name):
+            if not name:
+                return None
+
+            results = ( SearchQuerySet()
+                .filter(
+                    content=name,
+                    start_date__lte=self.date,
+                    end_date__gte=self.date
+                    )
+                .models(EntityName)
                 )
-            .models(EntityName)
-            .order_by('score'))
 
-        if len(results):
-            result = person = results[0]
-            # score is 0 in all cases?
-            print >> sys.stderr, "SCORE %s" % str( result.score )
+            if len(results):
+                result = person = results[0]
+                print >> sys.stderr, "SCORE %s" % str( result.score )
 
-            person = result.object.person
+                obj = result.object
+
+                if not obj:
+                    print >> sys.stderr, "Unexpected error: are you reusing main Elasticsearch index for tests?"
+                    return None
+
+                return obj.person
+            else:
+                return None
+        
+        person = _get_person(name) or _get_person( self._strip_honorific(name) )
+        if person:
             self.person_cache[name] = person
             return person
-        else:
-            return None
-        
+        return None
+
+    def _strip_honorific(self, name):
+        (stripped, changed) = re.subn( name_stopwords, '', name )
+        if changed:
+            return stripped
+        return None
+
 
 class SetupEntities (object):
 
@@ -154,16 +175,21 @@ class SetupEntities (object):
 
             def make_name(**kwargs):
                 kwargs['person'] = popit_person
-                kwargs['start_date'] = kwargs.get( 'start_date', date( year=1000, month=1, day=1 ) )
-                kwargs['end_date']   = kwargs.get( 'end_date',   date( year=5000, month=1, day=1 ) )
+                kwargs['start_date'] = kwargs.get( 'start_date', None ) or date( year=2000, month=1, day=1 )
+                kwargs['end_date']   = kwargs.get( 'end_date',   None ) or date( year=2030, month=1, day=1 )
                 return EntityName.objects.get_or_create(**kwargs)
 
             initials = self._get_initials(person)
             family_name = self._get_family_name(person)
+            honorific = person.get('honorific_prefix', '')
 
-            name_with_initials = ' '.join( [initials, family_name] )
+            def concat_name(names):
+                return ' '.join( [n for n in names if len(n)] )
 
-            make_name(name=name)
+            full_name          = concat_name( [honorific, name] )
+            name_with_initials = concat_name( [honorific, initials, family_name] )
+
+            make_name(name=full_name)
             make_name(name=name_with_initials)
 
             for membership in person['memberships']:
@@ -172,7 +198,7 @@ class SetupEntities (object):
                 (start_date, end_date) = self._dates(membership)
 
                 if organization.get('classification', '') == 'party':
-                    for n in [name, name_with_initials]:
+                    for n in [full_name, name_with_initials]:
                         name_with_party = '%s (%s)' % (n, organization['name'])
                         make_name(
                             name=name_with_party,

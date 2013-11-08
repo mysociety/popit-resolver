@@ -7,10 +7,10 @@ class EntityNameIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(
         document=True, 
         model_attr='name')
-    start_date = indexes.DateTimeField(
+    start_date = indexes.DateField(
         model_attr='start_date', 
         null=True)
-    end_date = indexes.DateTimeField(
+    end_date = indexes.DateField(
         model_attr='end_date', 
         null=True)
     person = indexes.IntegerField(

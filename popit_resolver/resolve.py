@@ -1,5 +1,5 @@
 import calendar
-from datetime import datetime
+from datetime import datetime, date
 import logging
 import os, sys
 import re, string
@@ -30,25 +30,35 @@ class ResolvePopitName (object):
         if not date:
             raise Exception("You must provide a date")
 
+        self.date = date
         self.person_cache = {}
 
     def get_person(self, name):
 
-        person = person_cache.get(name, None)
+        person = self.person_cache.get(name, None)
         if person:
             return person
 
-        persons = ( SearchQuerySet
-            .filter(content=name)
-            .exclude(
-                start_date__gt=self.date,
-                end_date__lt  =self.date)
-            .models(EntityName))
+        results = ( SearchQuerySet()
+            .filter(
+                content=name,
+                ### below commented out because filters to ZERO results :-(
+                # start_date__lte=self.date,
+                # end_date__gte=self.date
+                )
+            .models(EntityName)
+            .order_by('score'))
 
-        person = persons[0]
-        raise Exception(person)
+        if len(results):
+            result = person = results[0]
+            # score is 0 in all cases?
+            print >> sys.stderr, "SCORE %s" % str( result.score )
 
-        person_cache[name] = person
+            person = result.object.person
+            self.person_cache[name] = person
+            return person
+        else:
+            return None
         
 
 class SetupEntities (object):
@@ -100,7 +110,10 @@ class SetupEntities (object):
                 return datetime.strptime(value, '%Y-%m-%d')
             except:
                 return None
-        return [get_date(field) for field in ['start_date', 'end_date']]
+        return [
+            get_date('start_date'),
+            get_date('end_date'),
+            ]
 
     def init_popit_data(self, delete_existing=False):
         self.ai.fetch_all_from_api()
@@ -141,17 +154,31 @@ class SetupEntities (object):
 
             def make_name(**kwargs):
                 kwargs['person'] = popit_person
+                kwargs['start_date'] = kwargs.get( 'start_date', date( year=1000, month=1, day=1 ) )
+                kwargs['end_date']   = kwargs.get( 'end_date',   date( year=5000, month=1, day=1 ) )
                 return EntityName.objects.get_or_create(**kwargs)
 
             initials = self._get_initials(person)
             family_name = self._get_family_name(person)
 
+            name_with_initials = ' '.join( [initials, family_name] )
+
             make_name(name=name)
-            make_name( name=' '.join( [initials, family_name] ) )
+            make_name(name=name_with_initials)
 
             for membership in person['memberships']:
-                organization_name = membership['organization']['name']
+                organization = membership['organization']
+                organization_name = organization['name']
                 (start_date, end_date) = self._dates(membership)
+
+                if organization.get('classification', '') == 'party':
+                    for n in [name, name_with_initials]:
+                        name_with_party = '%s (%s)' % (n, organization['name'])
+                        make_name(
+                            name=name_with_party,
+                            start_date=start_date,
+                            end_date=end_date)
+
                 for field in ['role', 'label']:
                     membership_label = membership.get(field, None)
                     if not membership_label:

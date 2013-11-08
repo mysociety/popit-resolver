@@ -10,7 +10,8 @@ import datetime
 
 import json
 
-from popit_resolver.resolve import ResolvePopitName
+from popit_resolver.resolve import SetupEntities, ResolvePopitName
+from django.core.management import call_command
 
 from unittest import TestCase
 
@@ -22,9 +23,15 @@ class ResolvePopitNameTest(TestCase):
     def setUpClass(cls):
         cls._in_fixtures = os.path.join(os.path.relpath(popit_resolver.__path__[0]), 'fixtures', 'test_inputs')
 
+        SetupEntities(popit_url).init_popit_data()
+        call_command('update_index', verbosity=2)
+
     @classmethod
     def tearDownClass(cls):
         pass
+
+    def test_aaa(self):
+        self.assertTrue(True) # dummy pass, to prevent annoying stacktrace of SQL DDL if first test fails
 
     def test_resolve(self):
 
@@ -33,7 +40,6 @@ class ResolvePopitNameTest(TestCase):
         names = json.load( names_fh )
 
         resolver = ResolvePopitName( 
-                popit_url = popit_url,
                 date = datetime.date(month=10, year=2012, day=1) )
 
         actual = []

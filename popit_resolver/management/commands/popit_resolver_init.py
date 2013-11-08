@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
 from popit_resolver.resolve import SetupEntities
+from django.core.management import call_command
 
 
 class Command(BaseCommand):
@@ -24,5 +25,6 @@ class Command(BaseCommand):
 
         se = SetupEntities( popit_api_url )
         se.init_popit_data()
+        call_command('update_index')
 
 

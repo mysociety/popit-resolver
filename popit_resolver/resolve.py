@@ -29,7 +29,7 @@ class ResolvePopitName (object):
             date_string = None):
 
         if date_string:
-            date = datetime.strptime('%Y-%m-%d', date_string)
+            date = datetime.strptime(date_string, '%Y-%m-%d')
         if not date:
             raise Exception("You must provide a date")
 

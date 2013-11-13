@@ -13,6 +13,7 @@ from django.core.cache import cache
 
 from popit.models import Person, ApiInstance
 from popit_resolver.models import EntityName
+from popit_resolver.search_indexes import EntityNameIndex
 
 from haystack.query import SearchQuerySet
 
@@ -86,7 +87,7 @@ class SetupEntities (object):
 
     def __init__(self, popit_api_url):
         if not popit_api_url:
-            raise Exception("No popit_api_url passed to init_popit_data")
+            raise Exception("No popit_api_url passed to SetupEntities()")
         self.ai, _ = ApiInstance.objects.get_or_create(url=popit_api_url)
 
 
@@ -215,6 +216,10 @@ class SetupEntities (object):
                         start_date=start_date,
                         end_date=end_date)
 
+        index = EntityNameIndex()
+        # equivalent of manage.py rebuild_index
+        index.clear()
+        index.update()
 
     def get_collection(self, collection, fn=None):
 

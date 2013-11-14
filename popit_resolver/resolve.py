@@ -58,7 +58,7 @@ class ResolvePopitName (object):
 
             if len(results):
                 result = person = results[0]
-                print >> sys.stderr, "SCORE %s" % str( result.score )
+                # print >> sys.stderr, "SCORE %s" % str( result.score )
 
                 obj = result.object
 
@@ -161,7 +161,7 @@ class SetupEntities (object):
             m['organization'] = organization
 
         for person in persons.values():
-            print >> sys.stderr, 'Processing %s' % person.get('name', 'eeek!')
+            # print >> sys.stderr, 'Processing %s' % person.get('name', 'eeek!')
 
             name = person.get('name', None)
             if not name:

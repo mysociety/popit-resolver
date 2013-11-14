@@ -13,7 +13,6 @@ from django.core.cache import cache
 
 from popit.models import Person, ApiInstance
 from popit_resolver.models import EntityName
-from popit_resolver.search_indexes import EntityNameIndex
 
 from haystack.query import SearchQuerySet
 
@@ -215,11 +214,6 @@ class SetupEntities (object):
                         name=' '.join( [membership_label, organization_name] ),
                         start_date=start_date,
                         end_date=end_date)
-
-        index = EntityNameIndex()
-        # equivalent of manage.py rebuild_index
-        index.clear()
-        index.update()
 
     def get_collection(self, collection, fn=None):
 

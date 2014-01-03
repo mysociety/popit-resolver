@@ -55,32 +55,55 @@ class ResolvePopitName (object):
                 .models(EntityName)
                 )
 
-            if len(results):
-                result = person = results[0]
-                # print >> sys.stderr, "SCORE %s" % str( result.score )
+            # ElasticSearch may treat the date closeness as more important than the presence of
+            # words like Deputy (oops) so we do an additional filter here
+            if not re.search('Deputy', name):
+                results = [r for r in results if not re.search('Deputy', r.object.name)]
 
+            if len(results):
+
+                result = person = results[0]
                 obj = result.object
+
+                # print >> sys.stderr, "SCORE %s" % str( result.score )
 
                 if not obj:
                     print >> sys.stderr, "Unexpected error: are you reusing main Elasticsearch index for tests?"
                     return None
 
                 return obj.person
-            else:
-                return None
-        
-        person = _get_person(name) or _get_person( self._strip_honorific(name) )
+
+        (name_sans_paren, paren) = self._get_name_and_paren(name)
+        person = (
+               _get_person( paren ) # favour this, as it might override
+            or _get_person( name ) 
+            or _get_person( name_sans_paren ) 
+            or _get_person( self._strip_honorific(name) )
+            or _get_person( self._strip_honorific(name_sans_paren) )
+            )
         if person:
             self.person_cache[name] = person
             return person
         return None
 
     def _strip_honorific(self, name):
+        if not name:
+            return None
         (stripped, changed) = re.subn( name_stopwords, '', name )
         if changed:
             return stripped
         return None
 
+    def _get_name_and_paren(self, name):
+        s = re.match(r'((?:\w|\s)+) \(((?:\w|\s)+)\)', name)
+        if s:
+            (pname, paren) = s.groups()
+            if len(paren.split()) >= 3:
+                # if parens with at least three words
+                return (pname, paren)
+            else:
+                return (pname, None)
+        return (None, None)
 
 class SetupEntities (object):
 

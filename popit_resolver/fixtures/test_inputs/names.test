@@ -1189,7 +1189,7 @@
     ], 
     [
         "The Leader Of The Opposition (DA)", 
-        "org.mysociety.za/person/422"
+        "org.mysociety.za/person/436"
     ], 
     [
         "Mr A Watson", 
@@ -1541,7 +1541,7 @@
     ], 
     [
         "Minister for Agriculture, Forestry and Fisheries", 
-        "org.mysociety.za/person/485"
+        "org.mysociety.za/person/46"
     ], 
     [
         "Minister for Co-operative Governance and Traditional Affairs", 
@@ -1565,7 +1565,7 @@
     ], 
     [
         "Minister for Justice and Constitutional Development", 
-        "org.mysociety.za/person/297"
+        "org.mysociety.za/person/332"
     ], 
     [
         "Minister for Provincial and Local Government", 
@@ -1689,7 +1689,7 @@
     ], 
     [
         "Minister of Mineral Resources", 
-        "org.mysociety.za/person/140"
+        null
     ], 
     [
         "Minister of Minerals and Energy", 
@@ -1782,5 +1782,45 @@
     [
         "Minister Trade and Industry", 
         "org.mysociety.za/person/208"
+    ],
+    [
+        "M Johnson", 
+        "org.mysociety.za/person/231"
+    ], 
+    [
+        "A Steyn",
+        "org.mysociety.za/person/475"
+    ],
+    [
+        "R Cebekhulu",
+        "org.mysociety.za/person/514"
+    ],
+    [
+        "N Twala",
+        "org.mysociety.za/person/54"
+    ],
+    [
+        "M Pilusa-Mosoane",
+        "org.mysociety.za/person/78"
+    ],
+    [
+        "The HOUSE CHAIRPERSON (Mr C T Frolick)",
+        "org.mysociety.za/person/26"
+    ],
+    [
+        "Mr C T Frolick",
+        "org.mysociety.za/person/26"
+    ],
+    [
+        "The HOUSE CHAIRPERSON",
+        "org.mysociety.za/person/515"
+    ],
+    [
+        "Mnr P J GROENEWALD",
+        "org.mysociety.za/person/486"
+    ],
+    [
+        "Mnr P J GROENEWALD (VF Plus)",
+        "org.mysociety.za/person/486"
     ]
 ]

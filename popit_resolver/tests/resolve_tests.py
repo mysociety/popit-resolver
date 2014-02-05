@@ -15,7 +15,7 @@ from django.core.management import call_command
 
 from unittest import TestCase
 
-popit_url = 'http://sa-test.matthew.popit.dev.mysociety.org/api/v0.1/'
+popit_url = 'http://za-peoples-assembly.popit.mysociety.org/api/v0.1/'
 
 class ResolvePopitNameTest(TestCase):
 

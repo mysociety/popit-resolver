@@ -170,20 +170,16 @@ class SetupEntities (object):
 
         persons       = self.get_collection('persons', add_url)
         organizations = self.get_collection('organizations')
-        memberships   = self.get_collection('memberships')
-
-        for m in memberships.values():
-            person = persons[m['person_id']]
-            person.setdefault('memberships', [])
-            person['memberships'].append(m)
-
-            organization = organizations[m['organization_id']]
-            organization.setdefault('memberships', [])
-            organization['memberships'].append(m)
-            m['organization'] = organization
+        # memberships   = self.get_collection('memberships')
 
         for person in persons.values():
-            # print >> sys.stderr, 'Processing %s' % person.get('name', 'eeek!')
+            person.setdefault('memberships', [])
+
+            for m in person['memberships']:
+                organization = organizations[m['organization_id']]
+                organization.setdefault('memberships', [])
+                # organization['memberships'].append(m)
+                m['organization'] = organization
 
             name = person.get('name', None)
             if not name:

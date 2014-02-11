@@ -2,11 +2,43 @@ popit-resolver
 ==============
 
 A project to resolve people's names to a Popit record (see
-<http://mysociety.github.com/popit-resolver/>)
+<https://github.com/mysociety/popit-resolver/>)
+
+NB: the functionality of `popit-resolver` will shortly be incorporated into
+popit-api: <https://github.com/mysociety/popit-api/> after which this project
+will be deprecated.
 
 Documentation
 -------------
-Documentation (a work in progress) can be found at: https://github.com/mysociety/popit-resolver
+This document is taken from <https://github.com/mysociety/popit-resolver/> -
+check that for the latest version.
+
+Summary
+-------
+
+`popit-resolver` is usually run from within <https://github.com/mysociety/pombola>
+or <https://github.com/mysociety/za-hansard>.  
+
+Though it is intended to be run as an app *within* another site, for the purpose
+of running tests and management commands, it may be run as a standalone app,
+and therefore contains a `settings.py`, allowing it to be run as a django
+"site" (though there are no views).
+
+First of all, you must call this method to update popit-resolver's internal database
+of names and roles, and to load `popit_person` records for each user.
+
+    SetupEntities(popit_url).init_popit_data()
+
+Where `popit_url` is something like:
+
+    'http://za-peoples-assembly.popit.mysociety.org/api/v0.1/'
+
+Then you can resolve a name to a `popit_person` record as follows:
+
+        resolver = ResolvePopitName( 
+                date = datetime.date(month=11, year=2010, day=1) )
+
+        popit_person = resolver.get_person(name)
 
 Installation
 ------------

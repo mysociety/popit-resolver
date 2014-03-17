@@ -11,7 +11,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.cache import cache
 
-from popit.models import Person, ApiInstance
+from popit.models import Person, ApiInstance, get_paginated_generator
 from popit_resolver.models import EntityName
 
 from haystack.query import SearchQuerySet
@@ -237,7 +237,7 @@ class SetupEntities (object):
     def get_collection(self, collection, fn=None):
 
         api_client = self.ai.api_client(collection)
-        objects = api_client.get()['result']
+        objects = list(get_paginated_generator(api_client))
         if fn:
             objects = fn(objects, api_client)
 

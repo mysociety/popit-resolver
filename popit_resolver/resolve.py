@@ -110,6 +110,8 @@ class SetupEntities (object):
     def __init__(self, popit_api_url):
         if not popit_api_url:
             raise Exception("No popit_api_url passed to SetupEntities()")
+        message = "SetupEntities constructed with popit_api_url {0}"
+        print message.format(popit_api_url)
         self.ai, _ = ApiInstance.objects.get_or_create(url=popit_api_url)
 
 

@@ -249,6 +249,12 @@ class SetupEntities (object):
                             end_date=end_date)
 
                 for field in ['role', 'label']:
+                    # FIXME: it's probably worth excluding any party
+                    # memberships here - we just end up creating
+                    # thousands of EntityName objects that have the
+                    # name: "Member African National Congress
+                    # (ANC)". Similarly, it would be worth excluding
+                    # any membership of candidate lists.
                     membership_label = membership.get(field, None)
                     if not membership_label:
                         continue

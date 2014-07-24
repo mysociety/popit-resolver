@@ -115,19 +115,26 @@ class SetupEntities (object):
         self.ai, _ = ApiInstance.objects.get_or_create(url=popit_api_url)
 
 
-    def _get_initials(self, record):
+    def _get_possible_initials(self, record):
+
+        result = set()
 
         initials = record.get('initials', None)
         if initials:
-            return initials
+            result.add(initials)
 
-        given_names = record.get('given_names', None)
+        given_names = record.get('given_names', None) or record.get('given_name', None)
         if given_names:
+            # Extra all of those names, and try versions where they're
+            # separated by spaces and right next to each
+            # other. (e.g. John Happy becomes "J H" and "JH")
             initials = [a[:1] for a in given_names.split()]
-            return ' '.join(initials)
+            result.add(' '.join(initials))
+            result.add(''.join(initials))
+            # Also try just the initial of the first name:
+            result.add(given_names[:1])
 
-        return ''
-
+        return result
 
     def _get_family_name(self, record):
 
@@ -208,18 +215,25 @@ class SetupEntities (object):
                 kwargs['end_date']   = kwargs.get( 'end_date',   None ) or date( year=2030, month=1, day=1 )
                 return EntityName.objects.get_or_create(**kwargs)
 
-            initials = self._get_initials(person)
+            possible_initials = self._get_possible_initials(person)
             family_name = self._get_family_name(person)
-            honorific = person.get('honorific_prefix', '')
+            honorifics = set([person.get('honorific_prefix', '')])
+            honorifics.add('')
 
             def concat_name(names):
                 return ' '.join( [n for n in names if len(n)] )
 
-            full_name          = concat_name( [honorific, name] )
-            name_with_initials = concat_name( [honorific, initials, family_name] )
+            possible_names = set()
 
-            make_name(name=full_name)
-            make_name(name=name_with_initials)
+            for honorific in honorifics:
+                full_name = concat_name( [honorific, name] )
+                possible_names.add(full_name)
+                for initials in possible_initials:
+                    name_with_initials = concat_name( [honorific, initials, family_name] )
+                    possible_names.add(name_with_initials)
+
+            for possible_name in possible_names:
+                make_name(name=possible_name)
 
             for membership in person['memberships']:
                 organization = membership['organization']
@@ -227,7 +241,7 @@ class SetupEntities (object):
                 (start_date, end_date) = self._dates(membership)
 
                 if organization.get('classification', '') == 'party':
-                    for n in [full_name, name_with_initials]:
+                    for n in possible_name:
                         name_with_party = '%s (%s)' % (n, organization['name'])
                         make_name(
                             name=name_with_party,

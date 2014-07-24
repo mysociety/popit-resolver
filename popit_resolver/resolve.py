@@ -192,7 +192,10 @@ class SetupEntities (object):
             if not name:
                 continue
 
-            popit_person = Person.objects.get( popit_id=person['id'] )
+            popit_person = Person.objects.get(
+                api_instance=self.ai,
+                popit_id=person['id'],
+            )
 
             existing = EntityName.objects.filter( person=popit_person )
             if existing.count():

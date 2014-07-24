@@ -160,6 +160,11 @@ class SetupEntities (object):
             ]
 
     def init_popit_data(self, delete_existing=False):
+
+        # Remove all EntityName objects from the database (and search
+        # index):
+        EntityName.objects.all().delete()
+
         self.ai.fetch_all_from_api()
 
         def add_url(collection, api_client):

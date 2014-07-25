@@ -25,6 +25,4 @@ class Command(BaseCommand):
 
         se = SetupEntities( popit_api_url )
         se.init_popit_data()
-        call_command('update_index')
-
 

@@ -24,7 +24,6 @@ class ResolvePopitNameTest(TestCase):
         cls._in_fixtures = os.path.join(os.path.relpath(popit_resolver.__path__[0]), 'fixtures', 'test_inputs')
 
         SetupEntities(popit_url).init_popit_data()
-        call_command('update_index', verbosity=2)
 
     @classmethod
     def tearDownClass(cls):

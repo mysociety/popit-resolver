@@ -23,8 +23,8 @@ django-debug-toolbar
 selenium
 mock
 
-pyelasticsearch
-django-haystack
+pyelasticsearch==0.6.1
+django-haystack==2.1.0
 
 # mySociety modules
 popit-django==0.0.3

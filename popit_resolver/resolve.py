@@ -277,7 +277,9 @@ class SetupEntities (object):
                 organization_name = organization['name']
                 (start_date, end_date) = self._dates(membership)
 
-                if organization.get('classification', '').lower() == 'party':
+                classification = organization.get('classification', '').lower()
+
+                if classification == 'party':
                     for n in possible_names:
                         for p in get_party_name_variants(organization['name']):
                             name_with_party = '%s (%s)' % (n, p)
@@ -286,21 +288,23 @@ class SetupEntities (object):
                                 start_date=start_date,
                                 end_date=end_date)
 
-                for field in ['role', 'label']:
-                    # FIXME: it's probably worth excluding any party
-                    # memberships here - we just end up creating
-                    # thousands of EntityName objects that have the
-                    # name: "Member African National Congress
-                    # (ANC)". Similarly, it would be worth excluding
-                    # any membership of candidate lists.
-                    membership_label = membership.get(field, None)
-                    if not membership_label:
-                        continue
+                role = membership.get('role', '')
+                label = membership.get('label', '')
 
-                    make_name(
-                        name=' '.join( [membership_label, organization_name] ),
-                        start_date=start_date,
-                        end_date=end_date)
+                party_mship = (classification == 'party' and role == 'Member')
+                candidate_list_mship = re.search(r'^\d+.* Candidate$', role)
+
+                if not (party_mship or candidate_list_mship):
+                    # FIXME: I suspect we could drop this completely
+                    # with very few problems, but haven't tested that.
+                    for membership_label in (role, label):
+                        if not membership_label:
+                            continue
+
+                        make_name(
+                            name=' '.join( [membership_label, organization_name] ),
+                            start_date=start_date,
+                            end_date=end_date)
 
             done += 1
             message = "Done {0} out of {1} people ({2}%)"

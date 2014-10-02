@@ -36,7 +36,7 @@ class ResolvePopitName (object):
         self.date = date
         self.person_cache = {}
 
-    def get_person(self, name):
+    def get_person(self, name, party):
 
         person = self.person_cache.get(name, None)
         if person:
@@ -76,7 +76,7 @@ class ResolvePopitName (object):
         # This should ensure that we only try name variants until one
         # actually returns something:
         lazily_resolved_names = (
-            _get_person(n) for n in self._get_name_variants(name)
+            _get_person(n) for n in self._get_name_variants(name, party)
         )
         person = next((p for p in lazily_resolved_names if p), None)
         if person:
@@ -84,10 +84,12 @@ class ResolvePopitName (object):
             return person
         return None
 
-    def _get_name_variants(self, name):
+    def _get_name_variants(self, name, party):
         (name_sans_paren, paren) = self._get_name_and_paren(name)
-        return [
-            paren, # favour this, as it might override
+        names_to_try = [paren] # favour this, as it might override
+        if party:
+            names_to_try.append(name + " " + party)
+        return names_to_try + [
             name,
             name_sans_paren,
             self._strip_honorific(name),

@@ -241,7 +241,7 @@ class SetupEntities (object):
                 (start_date, end_date) = self._dates(membership)
 
                 if organization.get('classification', '').lower() == 'party':
-                    for n in possible_name:
+                    for n in possible_names:
                         name_with_party = '%s (%s)' % (n, organization['name'])
                         make_name(
                             name=name_with_party,

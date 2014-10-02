@@ -105,6 +105,25 @@ class ResolvePopitName (object):
                 return (pname, None)
         return (None, None)
 
+def get_party_name_variants(full_name):
+    """Get plausible variants of a party name from its full name
+
+    Sometimes party names have a standard abbreviation for the party
+    included in brackets like: 'Economic Freedom Fighters (EFF)'.  In
+    such cases this will return a sequence with possible ways of
+    referring to the organization, e.g.
+
+    >>> get_party_name_variants('Economic Freedom Fighters (EFF)')
+    ('Economic Freedom Fighters', 'EFF')
+    >>> get_party_name_variants('Conservative Party')
+    ('Conservative Party',)
+    """
+    m = re.search(r'^\s*(.*?)\s*\((.*)\)$', full_name)
+    if m:
+        return m.groups()
+    else:
+        return (full_name,)
+
 class SetupEntities (object):
 
     def __init__(self, popit_api_url):

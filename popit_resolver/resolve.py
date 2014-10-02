@@ -152,6 +152,11 @@ class SetupEntities (object):
             result.add(''.join(initials))
             # Also try just the initial of the first name:
             result.add(given_names[:1])
+            # In South Africa, sometimes the way people are recorded
+            # is using only their second initial, so try that as well.
+            # FIXME: maybe this should be scored lower than other variants...
+            if len(initials) >= 2:
+                result.add(initials[1])
 
         return result
 

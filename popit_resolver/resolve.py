@@ -73,18 +73,26 @@ class ResolvePopitName (object):
 
                 return obj.person
 
-        (name_sans_paren, paren) = self._get_name_and_paren(name)
-        person = (
-               _get_person( paren ) # favour this, as it might override
-            or _get_person( name ) 
-            or _get_person( name_sans_paren ) 
-            or _get_person( self._strip_honorific(name) )
-            or _get_person( self._strip_honorific(name_sans_paren) )
-            )
+        # This should ensure that we only try name variants until one
+        # actually returns something:
+        lazily_resolved_names = (
+            _get_person(n) for n in self._get_name_variants(name)
+        )
+        person = next((p for p in lazily_resolved_names if p), None)
         if person:
             self.person_cache[name] = person
             return person
         return None
+
+    def _get_name_variants(self, name):
+        (name_sans_paren, paren) = self._get_name_and_paren(name)
+        return [
+            paren, # favour this, as it might override
+            name,
+            name_sans_paren,
+            self._strip_honorific(name),
+            self._strip_honorific(name_sans_paren),
+        ]
 
     def _strip_honorific(self, name):
         if not name:

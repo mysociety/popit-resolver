@@ -316,4 +316,3 @@ class SetupEntities (object):
         objects = dict([ (doc['id'], doc) for doc in objects ])
 
         return objects
-

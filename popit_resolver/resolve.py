@@ -210,6 +210,9 @@ class SetupEntities (object):
         organizations = self.get_collection('organizations')
         # memberships   = self.get_collection('memberships')
 
+        total_people = len(persons)
+        done = 0
+
         for person in persons.values():
             person.setdefault('memberships', [])
 
@@ -288,6 +291,10 @@ class SetupEntities (object):
                         name=' '.join( [membership_label, organization_name] ),
                         start_date=start_date,
                         end_date=end_date)
+
+            done += 1
+            message = "Done {0} out of {1} people ({2}%)"
+            print message.format(done, total_people, (done * 100) / total_people)
 
     def get_collection(self, collection, fn=None):
 

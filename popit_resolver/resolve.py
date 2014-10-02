@@ -261,11 +261,12 @@ class SetupEntities (object):
 
                 if organization.get('classification', '').lower() == 'party':
                     for n in possible_names:
-                        name_with_party = '%s (%s)' % (n, organization['name'])
-                        make_name(
-                            name=name_with_party,
-                            start_date=start_date,
-                            end_date=end_date)
+                        for p in get_party_name_variants(organization['name']):
+                            name_with_party = '%s (%s)' % (n, p)
+                            make_name(
+                                name=name_with_party,
+                                start_date=start_date,
+                                end_date=end_date)
 
                 for field in ['role', 'label']:
                     # FIXME: it's probably worth excluding any party

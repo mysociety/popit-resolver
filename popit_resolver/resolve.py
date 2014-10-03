@@ -38,7 +38,7 @@ class ResolvePopitName (object):
 
     def get_person(self, name, party):
 
-        person = self.person_cache.get(name, None)
+        person = self.person_cache.get((name, party), None)
         if person:
             return person
 
@@ -80,7 +80,7 @@ class ResolvePopitName (object):
         )
         person = next((p for p in lazily_resolved_names if p), None)
         if person:
-            self.person_cache[name] = person
+            self.person_cache[(name, party)] = person
             return person
         return None
 

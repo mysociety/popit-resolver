@@ -227,10 +227,11 @@ class SetupEntities (object):
             person.setdefault('memberships', [])
 
             for m in person['memberships']:
-                organization = organizations[m['organization_id']]
-                organization.setdefault('memberships', [])
-                # organization['memberships'].append(m)
-                m['organization'] = organization
+                if 'organization_id' in m:
+                    organization = organizations[m['organization_id']]
+                    organization.setdefault('memberships', [])
+                    # organization['memberships'].append(m)
+                    m['organization'] = organization
 
             name = person.get('name', None)
             if not name:
@@ -273,6 +274,8 @@ class SetupEntities (object):
                 make_name(name=possible_name)
 
             for membership in person['memberships']:
+                if 'organization' not in membership:
+                    continue
                 organization = membership['organization']
                 organization_name = organization['name']
                 (start_date, end_date) = self._dates(membership)

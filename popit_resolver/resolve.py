@@ -202,7 +202,7 @@ class SetupEntities (object):
             get_date('end_date'),
             ]
 
-    def init_popit_data(self, delete_existing=False):
+    def init_popit_data(self, delete_existing=False, verbose=False):
 
         # Remove all EntityName objects from the database (and search
         # index):
@@ -310,8 +310,10 @@ class SetupEntities (object):
                             end_date=end_date)
 
             done += 1
-            message = "Done {0} out of {1} people ({2}%)"
-            print message.format(done, total_people, (done * 100) / total_people)
+
+            if verbose:
+                message = "Done {0} out of {1} people ({2}%)"
+                print message.format(done, total_people, (done * 100) / total_people)
 
     def get_collection(self, collection, fn=None):
 

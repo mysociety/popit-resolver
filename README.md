@@ -1,5 +1,8 @@
+**DEPRECATED - please consider using popolo-name-resolver https://github.com/mysociety/popolo-name-resolver**
+
 popit-resolver
 ==============
+
 
 A project to resolve people's names to a Popit record (see
 <http://mysociety.github.com/popit-resolver/>)

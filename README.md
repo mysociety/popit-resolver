@@ -1,4 +1,4 @@
-# **DEPRECATED - please consider using  [popolo-name-resolver](https://github.com/mysociety/popolo-name-resolver**)
+# DEPRECATED - please consider using  [popolo-name-resolver](https://github.com/mysociety/popolo-name-resolver)
 
 popit-resolver
 ==============
